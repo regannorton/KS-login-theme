@@ -11,6 +11,42 @@ define( [ 'jquery', 'core/theme-app', 'core/modules/authentication' ], function(
 	 * Login/logout are handled with the WP-AppKit Authentication API.
 	 */
 
+	 
+	console.log( 'SIMPLE LOGIN' );	 
+	
+	App.setParam( 'refresh-at-app-launch', false );
+//	App.setParam( 'go-to-default-route-after-refresh', false );
+
+	App.addCustomRoute( 'login-page-route', 'login-page' );
+	//This creates a route ('login-page-route' here) associated to your login-page.html template, so you can navigate to it whenever you want 
+	
+	App.filter( 'launch-route', function( launch_route, stats ){
+		var user = Auth.getCurrentUser();
+		if ( user ) {
+			
+			launch_route = 'component-latest';
+			//fragment of the component (post list) you want to display if logged in.
+			//If this is a page, you can use TemplateTags.getPageLink()
+			
+		} else {
+			
+			launch_route = 'login-page-route';
+			//your login page route as defined in App.addCustomRoute
+			
+		}
+		return launch_route;
+	} );
+	
+	var chosenCategories = ['chemical','energy'];
+	
+	App.filter( 'web-service-params', function ( web_service_params, web_service_name ){
+		// web_service_name can be 'synchronization', 'get-more-of-component' or 'get-post-comments'
+		web_service_params.auth_data = Auth.getActionAuthData( web_service_name );
+		web_service_params.chosen_categories = chosenCategories;//LocalStorage.get( 'categories', 'chosen' );
+		return web_service_params;
+	} );
+
+
 	/**
 	 * Define HTML for our login form wrapper, insert it into DOM just after the feedback <div>,
 	 * then memorize a jQuery reference to it.
