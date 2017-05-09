@@ -119,3 +119,17 @@ ol.breadcrumb{
    width:7em; 
    margin-right:1em;
 }
+
+/******/
+.navbar-toggle {
+    display: block;
+}
+
+.navbar-collapse.collapse {
+    display: none!important;
+    visibility: hidden!important;
+}
+.navbar-collapse.collapse.in {
+    display: block!important;
+    visibility: visible!important;
+}
