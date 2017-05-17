@@ -1,18 +1,52 @@
-<div id="login-page">
-	<h1>Log in</h1>
-	<div id="single-content">
-            You must log in to see this post.<br><br>
-          
-            <form>
-                <div class="form-group">
-                    <label for="user-login">Login</label>
-                    <input type="text" class="form-control" id="user-login" placeholder="Login">
+<div id="login-page" class="container">
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="form-wrap" id="login">
+            	<div class="help-mobile">
+                	<p>Trouble logging in?</p>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+                      Help
+                    </button>
+                    
+                    <!-- Modal -->
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">&nbsp;</h4>
+                          </div>
+                          <div class="modal-body">
+                          	<p>Welcome to THG Knowledge Share, a platform for sharing critical and timely knowledge.</p>
+                            <p><strong>New Users</strong><br>Please call Jonathan Schalliol at +1 (317) 476-3342 or <a href="mailto:jon@thgrp.com" class="mail_link">tap here</a> and send a message to request a new account.</p>
+                            <p><strong>Existing Users</strong><br>If you are an existing user, please enter that information and log in.  If you cannot login or have any difficulties, please call Jonathan Schalliol at +1 (317) 476-3342 or <a href="mailto:jon@thgrp.com" class="mail_link">tap here</a> and send a message.</p>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="user-pass">Password</label>
-                    <input type="password" class="form-control" id="user-pass" placeholder="Password">
+            	<div class="help">
+	            	<div id="feedback"></div>
+					<p>Welcome to THG Knowledge Share, a platform for sharing critical and timely knowledge.</p>
+					<p><strong>New Users</strong><br>Please call Jonathan Schalliol at +1 (317) 476-3342 or <a href="mailto:jon@thgrp.com" class="mail_link">tap here</a> and send a message to request a new account.</p>
+					<p><strong>Existing Users</strong><br>If you are an existing user, please enter that information and log in.  If you cannot login or have any difficulties, please call Jonathan Schalliol at +1 (317) 476-3342 or <a href="mailto:jon@thgrp.com" class="mail_link">tap here</a> and send a message.</p>
                 </div>
-                <button type="submit" class="btn btn-info">Log in</button>
-            </form>
+				<form  id="login-form" role="form" method="post" autocomplete="off">
+					<div class="form-group">
+						<label for="user-login" class="sr-only">Email</label>
+						<input id="user-login" name="user-login" type="text" class="form-control" placeholder="Login" autocapitalize="none" autocorrect="off" value="testAsiaRestricted">
+					</div>
+					<div class="form-group">
+						<label for="user-pass" class="sr-only">Password</label>
+						<input id="user-pass" name="user-pass" type="password" class="form-control" placeholder="Password" value="testpass">
+					</div>
+					<input id="btn-login" type="submit" class="btn btn-primary btn-lg btn-block" value="Log in">
+				</form>
+				
+			</div>
+		</div>
 	</div>
-</div>
+</div> <!-- /.container -->

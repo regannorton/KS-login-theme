@@ -1,69 +1,28 @@
-<%
-	//Use the global "post" to get the current page object (containing page title, page content ...).
-
-	var parent = TemplateTags.getPageParent();
-	var next_page = TemplateTags.getNextPage();
-	var previous_page = TemplateTags.getPreviousPage();
-	var siblings = TemplateTags.getPageSiblings();
-	var sub_pages = TemplateTags.getPageChildren();
-	var page_depth = TemplateTags.getPageDepth();
-	var ariane = TemplateTags.getPageBreadcrumb();
-%>
-
-<% if( page_depth > 0 ){ %>
-	<div class="btn-group btn-group-justified">
-	  <div class="btn-group">
-	  	<% if( previous_page ){ %>
-	    	<a class="btn btn-default" href="<%= TemplateTags.getPageLink(previous_page.id) %>">Previous</a>
-	    <% }else{ %>
-	    	<a class="btn btn-default" href="#" disabled="disabled">Previous</a>
-	    <% } %>
-	  </div>
-	  <div class="btn-group">
-	  	<% if( parent ){ %>
-	    	<a class="btn btn-default" href="<%= TemplateTags.getPageLink(parent.id) %>">Up</a>
-	    <% }else{ %>
-	    	<a class="btn btn-default" href="#" disabled="disabled">Up</a>
-	    <% } %>
-	  </div>
-	  <div class="btn-group">
-	  	<% if( next_page ){ %>
-	    	<a class="btn btn-default" href="<%= TemplateTags.getPageLink(next_page.id) %>">Next</a>
-	    <% }else{ %>
-	    	<a class="btn btn-default" href="#" disabled="disabled">Next</a>
-	    <% } %>
-	  </div>
-	</div>
-
-<% } %>
-
-<% if( ariane.length ){ %>
-	<ol class="breadcrumb">
-		<% _.each( ariane, function(page){ %>
-			<li><a href="<%= TemplateTags.getPageLink(page.id) %>"><%= page.title %></a></li>
-		<% }); %>
-	  	<li class="active"><%= post.title %></li>
-	</ol>
-<% } %>
-<h1 class="<% print(parent ? 'with-parent' : '') %>"><%= post.title %></h1>
-
-<div class="page-content">
-	<%= post.content %>
-</div>
-
-<% if( sub_pages.length ){ %>
-	<div class="list-group related-pages">
-		<% _.each( sub_pages, function(page){ %>
-			<a href="<%= TemplateTags.getPageLink(page.id) %>" class="list-group-item"><%= page.title %></a>
-		<% }); %>
-	</div>
-<% } %>
-
-<% if( siblings.length ){ %>
-	<div class="list-group related-pages siblings">
-		<h3><%= parent.title %></h3>
-		<% _.each( siblings, function(page){ %>
-			<a href="<%= TemplateTags.getPageLink(page.id) %>" class="list-group-item <% print(page.id == post.id ? 'list-group-item-info' : '') %>"><%= page.title %></a>
-		<% }); %>
-	</div>
-<% } %>
+<section id="login">
+	<div class="container">
+    	<div class="row">
+    	    <div class="col-xs-12">
+        	    <div class="form-wrap">
+                <h1>Log in with your email account</h1>
+                    <form role="form" action="javascript:alert('thanks for trying to log in');" method="post" id="login-form" autocomplete="off">
+                        <div class="form-group">
+                            <label for="email" class="sr-only">Email</label>
+                            <input type="email" name="email" id="email" class="form-control" placeholder="somebody@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="key" class="sr-only">Password</label>
+                            <input type="password" name="key" id="key" class="form-control" placeholder="Password">
+                        </div>
+                        <div class="checkbox">
+                            <span class="character-checkbox" onclick="showPassword()"></span>
+                            <span class="label">Show password</span>
+                        </div>
+                        <input type="submit" id="btn-login" class="btn btn-custom btn-lg btn-block" value="Log in">
+                    </form>
+                    <a href="javascript:;" class="forget" data-toggle="modal" data-target=".forget-modal">Forgot your password?</a>
+                    <hr>
+        	    </div>
+    		</div> <!-- /.col-xs-12 -->
+    	</div> <!-- /.row -->
+    </div> <!-- /.container -->
+</section>

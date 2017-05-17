@@ -1,38 +1,121 @@
-<div class="container" id="container">
-	<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-		<div class="navbar-header" id="app-title">
-			<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
-			      <span class="sr-only">Toggle navigation</span>
-			      <span class="icon-bar"></span>
-			      <span class="icon-bar"></span>
-			      <span class="icon-bar"></span>
-		    </button>
-		    <span class="navbar-brand refresh-button-wrapper">
-		     	<a href="#" id="refresh-button" class="navbar-brand"><span class="glyphicon glyphicon-refresh"></span></a>
-		     	<a href="#" id="go-back" class="navbar-brand" style="display:none"><span class="glyphicon glyphicon-chevron-left"></span></a>
-		    </span>
-		    <span class="navbar-brand"><a href="#"><%= app_title %></a></span>
-		</div>
-		<div class="collapse navbar-collapse" id="navbar-collapse">
-		    <%= menu %>
-		</div>
-	</nav>
-	<div id="feedback" style="display:none"></div>
-	<%= content %>
-</div>
-<div id="waiting" style="display:none"></div>
-
-<div id="theme-modal" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header" id="theme-modal-header">
-                <button type="button" class="close" id="theme-modal-close"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title"></h4>
-            </div>
-            <div class="modal-body" id="theme-modal-body">
-            </div>
-            <div class="modal-footer" id="theme-modal-footer">
-            </div>
-        </div>
+<div id="favorites_panel">
+    <div id="settings_modal">
+    	<h4>Select which categories you&rsquo;d like to see by default.</h4>
+    	<ul id="fav_btns_left">
+        </ul>
+        <ul id="fav_btns_right">
+        </ul>
+        <a href="#" id="save_favorites" class="btn">Save</a>
+        <ul>
+        	<li>
+            	<a href="#" id="vis_mode">Use Visibility Mode</a>
+            </li>
+        </ul>
     </div>
 </div>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div id="categories">
+        <div class="arrow"></div>
+        <%= menu %>
+    </div>
+    <div id="buttons" class="inactive">
+        <a type="button" id="menu" href="#sidr" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </a>
+        <a type="button" id="home" href="#" class="navbar-home">
+            <div class="home"></div>
+        </a>
+        <a type="button" id="favorites" href="#" class="navbar-favs">
+            <div class="favorites"></div>
+        </a>
+        <a type="button" id="fontSizeAdjust" href="#" class="button">
+            <div class="fontSizeAdjust"></div>
+        </a>
+        <a type="button" id="share" href="#" class="navbar-share">
+            <div class="share"></div>
+        </a>
+        <a id="refresh-button" href="#" class="" style="
+    position: absolute;
+    left: 240px;
+    line-height: 30px;
+">
+            REFRESH
+        </a>
+        <button id="searchbar-toggle" type="button" class="navbar-toggle collapsed visible-xs-block" data-toggle="collapse" data-target="#searchbar" aria-expanded="false" aria-controls="searchbar"></button>
+    </div>
+	<div class="stocks inactive">
+    	<p class="hcci"></p>
+        <p class="clmt"></p>
+    </div>
+    <div class="feedback"></div>
+    <div class="navbar-brand"></div>
+    <div class="navbar-forms hidden-xs inactive">
+        <div class="navbar-search">
+            <form class="form-inline" id="search-form">
+                <fieldset>
+                  <div class="control-group">
+                    <div class="controls">
+                     <div class="has-feedback form-group">
+                       <i class="glyphicon glyphicon-search fa fa-search form-control-feedback"></i>
+                       <input type="text" name="my-search-string" id="my-search-string" class="form-control" value="" />
+                     </div>
+                    </div>
+                  </div>
+                 </fieldset>
+            </form>
+        </div>
+        <div class="navbar-filter">
+            <form class="form-inline">
+             <fieldset>
+              <div class="control-group">
+                <div class="controls">
+                 <div class="has-feedback form-group">
+                   <i class="glyphicon glyphicon-calendar fa fa-calendar form-control-feedback"></i>
+                   <input type="text" name="daterange" id="daterange" class="form-control" value="" readonly /> 
+                 </div>
+                </div>
+              </div>
+             </fieldset>
+           </form>
+       </div>
+	</div>
+</nav>
+<div id="searchbar" class="visible-xs-block searchbar-collapse collapse" style="height:0px;" aria-expanded="false">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <form class="form-inline" id="search-form2">
+                    <fieldset>
+                      <div class="control-group">
+                        <div class="controls">
+                         <div class="has-feedback form-group">
+                           <i class="glyphicon glyphicon-search fa fa-search form-control-feedback"></i>
+                           <input type="text" name="my-search-string2" id="my-search-string2" class="form-control" value="" />
+                         </div>
+                        </div>
+                      </div>
+                     </fieldset>
+                </form>
+                <form class="form-inline">
+                 <fieldset>
+                  <div class="control-group">
+                    <div class="controls">
+                     <div class="has-feedback form-group">
+                       <i class="glyphicon glyphicon-calendar fa fa-calendar form-control-feedback"></i>
+                       <input type="text" name="daterange2" id="daterange2" class="form-control" value="" readonly /> 
+                     </div>
+                    </div>
+                  </div>
+                 </fieldset>
+               </form>
+   			</div>
+   		</div>
+   </div>
+</div>
+<div id="my-container">
+<%= content %>
+</div>
+<div id="waiting" style="display:none"></div>

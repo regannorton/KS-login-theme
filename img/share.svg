@@ -1,0 +1,6 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 30 30">
+    <g>
+        <rect x="3" y="9" fill="none" stroke="#010101" stroke-width="1" stroke-miterlimit="10" width="24" height="14.3"/>
+        <polyline fill="none" stroke="#010101" stroke-width="1" stroke-miterlimit="10" points="3,9 15,16.7 27,9 	"/>
+    </g>
+</svg>

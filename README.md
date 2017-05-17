@@ -1,5 +1,5 @@
 <!--
-Theme Name: DEV - User Login with search
+Theme Name: DEV - THG
 Description: WP-AppKit demo theme to illustrate the User Login feature
 Version: 0.3
 Theme URI: https://github.com/uncatcrea/wpak-bootstrap-themes/tree/feature-user-login

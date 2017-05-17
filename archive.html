@@ -1,43 +1,65 @@
-<div id="archive">
-    
-	<ol class="breadcrumb">
-		<li><%= list_title %><% total > 0 ? print(' - ' + total) : print(' - No') %> post<% total > 1 ? print('s') : '' %></li>
-	</ol>
-	
-	<% if(posts.length){ %>
-	
-		<ul class="media-list">
-		
-			<% _.each( posts, function( post ){ %>
-			
-				<li class="media"> 
-						
-					<% if( post.thumbnail.src && post.thumbnail.src.length ){ %>
-						<img class="media-object pull-left" style="width: 87px; height: 58px;" src="<%= post.thumbnail.src %>">
-					<% } %>						
-												
-					<div class="media-body">
-						<h4 class="media-heading">
-							<a href="<%= TemplateTags.getPostLink(post.id) %>" class="pull-left"><%= post.title %></a>
-							&nbsp;<small class="small"><%= TemplateTags.formatDate(post.date,'d/m/Y') %></small>
-						</h4>
-						<% if( post.nb_comments > 0 ){ %>
-							<span class="comments"><%= post.nb_comments %> comment<% post.nb_comments > 1 ? print('s') : '' %></span><br/>
-						<% } %>
-						<p><%= post.excerpt %></p>
-					</div>
-					
-				</li>
-				
-			<% }); %>
-									
-		</ul>
-		
-		<% if( TemplateTags.displayGetMoreLink() ){ %>
-			<button type="button" class="get-more btn btn-default">Get more posts (<%= TemplateTags.getMoreLinkNbLeft() %> left)</button>
-		<% } %>
-		
-	<% }else{ %>
-		<p>No post found!</p>
-	<% } %>
-</div>
+<%
+function parseCommentDate(theDate){
+	var dateOutput = "";
+	var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+	var timeSuffix = 'am';
+    var theYear = theDate.substring(0,4);
+    var theMonth = parseInt(theDate.substring(5,7)-1);
+    theMonth = months[theMonth];
+    var theDay = theDate.substring(8,10);
+    var dateOutput = theMonth+' '+theDay+', '+theYear;
+    if(theDate.length>10){
+	    var theHour = theDate.substring(11,13);
+	    if(theHour>12){
+	    	theHour = theHour-12;
+	        timeSuffix = 'pm';
+	    }
+	    var theMinute = theDate.substring(14,16);
+	    dateOutput += ' at '+theHour+':'+theMinute+' '+timeSuffix;
+    }
+    return dateOutput;
+}
+%>
+<div class="container copy" id="the_container">
+	<% post_data = posts; %>
+    <% //console.log('posts: ',posts); %>
+	<% var counter=0; %>
+    <% section_data=[]; %>
+    <% if( posts.length ){ %>
+    	<% _.each( posts, function( post ){ %>
+        	<% section_data.push(post); %>
+        	<% if( counter==0||counter%2==0){ %>
+            <div class="row summaries">
+            <% } %>
+            
+                <div class="col-sm-6">
+                    <div class="summary" data-categories="<%=post.cat_data%>">
+                        <a href="<%=TemplateTags.getPostLink(post.id)%>" data-index="<%=counter%>">
+                        <% if( post.thumbnail.src && post.thumbnail.src.length ){ %>
+                            <img width="1024" height="221" src="<%=post.thumbnail.src%>" class="attachment-1024x221 size-1024x221 wp-post-image lazy" alt="" onerror="setDefaultImg(this);">
+                        <% } else { %>
+                            <img src="<%=TemplateTags.getThemeAssetUrl('img/thg-placeholder.jpg')%>" width="2048" height="443" class="attachment-post-thumbnail wp-post-image lazy" alt="sample" title="" style="">
+                        <% } %>
+                        <h4><%=post.title%></h4>
+                        <span class="date"><%=parseCommentDate(TemplateTags.formatDate(post.date,'Y/m/d'))%></span> <span class="category_name"><%=post.categories%></span>
+                        <div class="clearfix"></div>
+                        </a>
+                    </div><!-- /.summary -->
+                </div>
+            
+            <% if( counter%2!=0){ %>
+        	</div><!-- /.summaries -->
+        	<% } %>
+            <% counter++; %>
+        <% }); %><!--/each posts-->
+        <div class="loading"></div>
+    <% }else{ %><!--/posts.length-->
+          <p>No post found!</p>
+    <% } %>
+</div><!-- /.container -->
+<%
+    function myFunction(){
+        
+        console.log('this');
+    }
+%>

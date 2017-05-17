@@ -1,14 +1,164 @@
-<div id="single" class="post-<%= post.id %>">
-    <h1><%= post.title %></h1>
-    <%= TemplateTags.formatDate(post.date,'d/m/Y') %>
-    <% if( post.nb_comments > 0 ){ %>
-            - <a class="comments" data-post-id="<%= post.id %>" href="#"><% print(post.nb_comments) %>&nbsp;comment<% post.nb_comments > 1 ? print('s') : '' %></a>
-    <% } %>
-    - <a class="comments" data-post-id="<%= post.id %>" href="#">Comment this post</a>
-    <div id="single-content">
-        <% if(  post.thumbnail && post.thumbnail.src && post.thumbnail.src.length ){ %>
-                <img src="<%= post.thumbnail.src %>" />
-        <% } %>
-        <%= post.content %>
-    </div>
+<%
+//REMOVE THIS
+user_role = 'administrator';
+user_data = {};
+user_data.first_name = 'FIRST';
+user_data.last_name = 'LAST';
+//REMOVE THIS
+
+function parseCommentDate(theDate){
+	var dateOutput = "";
+	var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+	var timeSuffix = 'am';
+    var theYear = theDate.substring(0,4);
+    var theMonth = parseInt(theDate.substring(5,7)-1);
+    theMonth = months[theMonth];
+    var theDay = theDate.substring(8,10);
+    var dateOutput = theMonth+' '+theDay+', '+theYear;
+    if(theDate.length>10){
+	    var theHour = theDate.substring(11,13);
+	    if(theHour>12){
+	    	theHour = theHour-12;
+	        timeSuffix = 'pm';
+	    }
+	    var theMinute = theDate.substring(14,16);
+	    dateOutput += ' at '+theHour+':'+theMinute+' '+timeSuffix;
+    }
+    return dateOutput;
+}
+%>
+<div class="swiper-container">
+        <div class="swiper-wrapper">
+        <% var index = 0; %>
+        <% _.each( section_data, function( post ){ %>
+            <div class="swiper-slide" id="post_<%= post.id %>" data-index="<%=index%>" data-hash="#single/posts/<%= post.id %>">
+                <div class="image_banner">
+                    <% if( post.thumbnail.src && post.thumbnail.src.length ){ %>
+                        <img width="2048" height="443" src="<%= post.thumbnail.src %>" class="attachment-post-thumbnail wp-post-image" alt="" title="" style="" onerror="setDefaultImg(this);">
+                    <% } else { %>
+                        <img width="2048" height="443" src="<%=TemplateTags.getThemeAssetUrl('img/thg-placeholder.jpg')%>" class="attachment-post-thumbnail wp-post-image" alt="sample" title="" style="">	
+                    <% } %>
+                </div>
+                <div class="container copy <%= font_size %>">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <div class="date"><%= parseCommentDate(TemplateTags.formatDate(post.date,'Y/m/d')) %></div>
+                        </div>
+                        <div class="col-xs-6 text-right">
+                            <span class="category_name"><%= post.categories %></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 post_title">
+                            <h1><%= post.title %></h1>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <span class="source"><%= post.thg_curator_article_source %></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 post_content">
+                            <%= post.content %>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h3>Article &amp; Print</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <a class="print_post print_btn" data-pdf_id="<%=post.custom_id%>" data-post_title="<%=post.title%>"><!--Article--></a>
+                            <a class="print_attachments print_btn" data-pdf_id="<%=post.custom_id%>" data-post_title="<%=post.title%>"><!--Article with Summary--></a>
+                            <% if(user_role=='administrator' || user_role=='contributor' || user_role=='editor'){ %>
+                            <a class="print_all print_btn" data-pdf_id="<%=post.custom_id%>" data-post_title="<%=post.title%>"><!--Article with Summary and Comments--></a>
+                            <% } %>
+                        </div>
+                    </div>
+                    
+                    <% if(user_role=='administrator' || user_role=='contributor' || user_role=='editor'){ %>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <h3>Comments</h3>
+                            </div>
+                        </div>
+                        <% if (isConnected) { %>
+                        	<% if(user_role=='administrator' || user_role=='contributor' || user_role=='editor'){ %>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <form action="https://knowledgesharedev.hfnelson.com/wp-comments-ajax.php" method="post" id="commentform">
+            
+                                        <p><textarea name="comment" id="comment" cols="58" rows="10" tabindex="4"></textarea></p>
+                                        
+                                        <p><input name="submit" type="submit" id="submit" tabindex="5" value="Submit Comment">
+                                        <input type="hidden" name="comment_post_ID" value="<%=post.id%>" id="comment_post_ID">
+                                        <input type="hidden" name="author" id="author" value="<%=user_data.first_name%> <%=user_data.last_name%>">
+                                        <input type="hidden" name="email" id="email" value="jon@thgrp.com">
+                                        </p>
+                                        </form>
+                                    </div>
+                                </div>
+                            <% } %>
+                        <% } %>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="comment_area">
+                                <% if( post.comments && post.comments.length > 0 ) { %>
+                                        <% _.each( post.comments, function( comment ) { %>
+                                            <div class="comment">
+                                            <% //console.log('comment: ',comment); %>
+                                                <p class="comment_author"><%= comment.comment_author %></p>
+                                                <p class="comment_date"><%= parseCommentDate(comment.comment_date) %></p>
+                                                <p class="comment_content"><%= comment.comment_content %></p>
+                                            </div>
+                                        <% } ); %>
+                                <% } else { %>
+                                    No comment!
+                                <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                    
+
+<!--
+<form action="https://knowledgesharedev.hfnelson.com/wp-comments-post.php" method="post" id="commentform">
+
+
+<p><input type="hidden" name="author" id="author" value="<%=user_data.nickname%>" size="22" tabindex="1" aria-required="true"></p>
+
+<p><input type="hidden" name="email" id="email" value="regan.norton@gmail.com" size="22" tabindex="2" aria-required="true"></p>
+
+<p><input type="hidden" name="url" id="url" value="" size="22" tabindex="3"></p>
+
+<p><textarea name="comment" id="comment" cols="58" rows="10" tabindex="4"></textarea></p>
+
+<p><input name="submit" type="submit" id="submit" tabindex="5" value="Submit Comment">
+<input type="hidden" name="comment_post_ID" value="143" id="comment_post_ID">
+<input type="hidden" name="comment_parent" id="comment_parent" value="0">
+</p>
+<p class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"> <label class="subscribe-label" id="subscribe-label" for="subscribe_comments">Notify me of follow-up comments by email.</label></p><p class="comment-subscription-form"><input type="checkbox" name="subscribe_blog" id="subscribe_blog" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"> <label class="subscribe-label" id="subscribe-blog-label" for="subscribe_blog">Notify me of new posts by email.</label></p>
+</form>
+-->
+                </div><!-- /.container -->
+            </div><!-- /.swiper-slide -->
+            <% index++; %>
+<% 
+/*var out = '';
+for (var i in post) {
+    out += i + ": " + post[i] + "\n";
+}
+console.log('*************');
+console.log(out);
+console.log('*************');
+console.log( 'section data: '+post );*/
+%>
+		<% }); %>
+        
+</div>
+    <!-- Add Arrows -->
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
 </div>
