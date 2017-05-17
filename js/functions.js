@@ -1,8 +1,68 @@
-define( [ 'jquery', 'core/theme-app', 'core/theme-tpl-tags', 'core/modules/storage', 
-		  'theme/js/bootstrap.min', 'theme/js/auth/auth-pages', 'theme/js/auth/simple-login', 
-		  'theme/js/auth/premium-posts', 'theme/js/comments' 
+define( [ 'jquery', 'core/theme-app', 'core/theme-tpl-tags', 'core/modules/persistent-storage', 'theme/js/connection', 'theme/js/stocks', 'theme/js/pdf', 'theme/js/vismode', 'theme/js/text', 'theme/js/settings', 'theme/js/user', 'theme/js/menu', 'theme/js/moment.min', 
+		  'theme/js/bootstrap.min', 'theme/js/search', 'theme/js/buttons','theme/js/swiper.jquery.min', 'theme/js/auth/auth-pages', 'theme/js/auth/simple-login', 'theme/js/auth/premium-posts', 'theme/js/comments', 'theme/js/datepicker', 'theme/js/clamp.min'
 		], 
-		function( $, App, TemplateTags, Storage ) {
+		function( $, App, TemplateTags, Storage, Conn, Stocks, PDF, Vismode, Text, Settings, User, Menu, moment ) {
+			
+	isConnected = Conn.isConnected();
+	
+	base_dir = 'https://knowledgesharedev.hfnelson.com';
+	
+	start_date = moment("2014-01-01").unix();
+	end_date = moment().subtract(4,'hours').unix();
+	
+	availableCategories = [];
+
+	chosenCategories = [];
+
+	categoryNames = [];
+	
+	// HOLDS POST DATA FOR SINGLE-PAGE SECTIONS
+	// SET WHEN retrievePosts IS CALLED
+	section_data = [];
+	
+	clicked_index = 0;
+	
+	var swiperParams = {
+        spaceBetween: 30,
+        threshold: 40,
+        onSlideChangeStart: function(swiper){
+            window.scrollTo(0,0);
+        }
+    }
+
+	App.on( 'info', function( info ) {
+		console.log( 'Info: ',info );
+		switch( info.event ) {
+			case 'app-ready':			
+				break;
+			case 'auth:user-login':
+			case 'auth:user-logout':
+				console.log( 'LOGIN/LOGOUT' );
+				break;
+		}
+	} );
+	
+	$(window).scroll(function() {
+	   if($(window).scrollTop() + $(window).height() > $(document).height() - 500) {
+		   getMoreItems();
+	   }
+	});
+	
+	function getMoreItems(){
+		App.getMoreComponentItems( 
+			function() {
+				//If something is needed once items are retrieved, do it here.
+				//Note : if the "get more" link is included in the archive.html template (which is recommended),
+				//it will be automatically refreshed.
+				console.log( 'SUCCESS' );
+				//$this.removeAttr( 'disabled' );
+			},
+			function( error, get_more_link_data ) {
+				console.log( 'ERROR', error );
+				//$this.removeAttr( 'disabled' ).text( text_memory );
+			}
+		);
+	}
 
 	var $refresh_button = $( '#refresh-button' );
 
@@ -14,6 +74,12 @@ define( [ 'jquery', 'core/theme-app', 'core/theme-tpl-tags', 'core/modules/stora
 		closeMenu();
 		App.refresh();
 	} );
+    
+	$( '.navbar' ).on( 'click', '.navbar-brand', function( e ) {
+		e.preventDefault();
+		Storage.clearAll();
+		console.log( 'DELETE FAVORITES' );
+	});
 
 	/**
 	 * Animate refresh button when the app starts refreshing
@@ -38,50 +104,27 @@ define( [ 'jquery', 'core/theme-app', 'core/theme-tpl-tags', 'core/modules/stora
 	 */
 	App.on( 'refresh:end', function( result ) {
 		scrollTop();
-		Storage.clear( 'scroll-pos' );
+		//Storage.clear( 'scroll-pos' );
 		$refresh_button.removeClass( 'refreshing' );
 		if ( result.ok ) {
 			$( '#feedback' ).removeClass( 'error' ).html( 'Content updated successfully :)' ).slideDown();
 		} else {
 			$( '#feedback' ).addClass( 'error' ).html( result.message ).slideDown();
 		}
+		
+		$('#waiting').hide();
+		console.log('availableCategories: ', availableCategories);
+		console.log('chosenCategories: ', chosenCategories);
+		console.log('categoryNames: ', categoryNames);
+		Stocks.getStockInfo();
+		
 	} );
 
 	/**
 	 * When an error occurs, display it in the feedback box
 	 */
 	App.on( 'error', function( error ) {
-		$( '#feedback' ).addClass( 'error' ).html( error.message ).slideDown();
-	} );
-
-	/**
-	 * Hide the feedback box when clicking anywhere in the body
-	 */
-	$( 'body' ).click( function( e ) {
-		$( '#feedback' ).slideUp();
-	} );
-
-	/**
-	 * Back button 
-	 */
-	var $back_button = $( '#go-back' );
-	
-	//Show/Hide back button (in place of refresh button) according to current screen:
-	App.on( 'screen:showed', function () {
-		var display = App.getBackButtonDisplay();
-		if ( display === 'show' ) {
-			$refresh_button.hide();
-			$back_button.show();
-		} else if ( display === 'hide' ) {
-			$back_button.hide();
-			$refresh_button.show();
-		}
-	} );
-
-	//Go to previous screen when clicking back button:
-	$back_button.click( function ( e ) {
-		e.preventDefault();
-		App.navigateToPreviousScreen();
+		console.log( error.message );
 	} );
 
 	/**
@@ -143,9 +186,11 @@ define( [ 'jquery', 'core/theme-app', 'core/theme-tpl-tags', 'core/modules/stora
 				//If something is needed once items are retrieved, do it here.
 				//Note : if the "get more" link is included in the archive.html template (which is recommended),
 				//it will be automatically refreshed.
+				console.log( 'SUCCESS' );
 				$this.removeAttr( 'disabled' );
 			},
 			function( error, get_more_link_data ) {
+				console.log( 'ERROR', error );
 				$this.removeAttr( 'disabled' ).text( text_memory );
 			}
 		);
@@ -159,7 +204,7 @@ define( [ 'jquery', 'core/theme-app', 'core/theme-tpl-tags', 'core/modules/stora
 	App.on( 'screen:leave', function( current_screen, queried_screen, view ) {
 		//current_screen.screen_type can be 'list','single','page','comments'
 		if ( current_screen.screen_type == 'list' ) {
-			Storage.set( 'scroll-pos', current_screen.fragment, $( 'body' ).scrollTop() );
+			//Storage.set( 'scroll-pos', current_screen.fragment, $( 'body' ).scrollTop() );
 		}
 	} );
 
@@ -167,21 +212,70 @@ define( [ 'jquery', 'core/theme-app', 'core/theme-tpl-tags', 'core/modules/stora
 	 * Do something when a new screen is showed.
 	 * Here, if we arrive on a post list, we resore the scroll position
 	 */
-	App.on( 'screen:showed', function( current_screen, view ) {
+	App.on( 'screen:showed', function( current_screen, current_view ) {
+		//console.log('Current Screen: ',current_screen);
+	    //console.log('View: ',current_view);
 		//current_screen.screen_type can be 'list','single','page','comments'
 		if ( current_screen.screen_type == 'list' ) {
+/*
 			var pos = Storage.get( 'scroll-pos', current_screen.fragment );
 			if ( pos !== null ) {
 				$( 'body' ).scrollTop( pos );
 			} else {
 				scrollTop();
 			}
+*/
 		} else {
-			scrollTop();
+// 			scrollTop();
+		}
+		
+		if( current_view.template_name == 'archive' || current_view.template_name == 'single' ){
+			
+			$( 'nav.login' ).removeClass( 'login' );
+			
+		}
+		
+		if( current_view.template_name == 'archive' ){
+			
+			$( 'nav.single' ).removeClass( 'single' );
+			$( 'nav' ).addClass( 'archive' );
+			
+			$('#app-menu a[href^="#component"]').each(function(){
+				$(this).removeClass('checked');
+				var myCategory = $(this).attr('href').substr(11);
+				if($.inArray(myCategory,chosenCategories)>=0){
+					$(this).addClass('checked');
+				}
+			});
+			
+		}
+		
+		if( current_view.template_name == 'single' ){
+			
+			$( 'nav.archive' ).removeClass( 'archive' );
+			$( 'nav' ).addClass( 'single' );
+			
+			if(section_data.length>1){
+			   var swiper = new Swiper('.swiper-container', swiperParams);
+			   swiper.slideTo(clicked_index, 0, false);
+			}
+			
+		}
+		
+		if( current_view.template_name == 'login-page' ){
+			
+			$( 'nav.archive' ).removeClass( 'archive' );
+			$( 'nav.single' ).removeClass( 'single' );
+			$( 'nav' ).addClass( 'login' );
+			Menu.closeMenu();
+			Stocks.hideStocks();
+			
 		}
 		
 		if ( current_screen.screen_type == 'comments' ) {
+			
 			$('#waiting').hide();
+			
 		}
 		
 	} );

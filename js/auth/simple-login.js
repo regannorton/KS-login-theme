@@ -1,5 +1,5 @@
-define( [ 'jquery', 'core/theme-app', 'core/modules/authentication' ], function( $, App, Auth ) {
-
+define( [ 'jquery', 'core/theme-app', 'core/modules/authentication', 'theme/js/favorites', 'theme/js/settings', 'theme/js/user', 'theme/js/datepicker' ], function( $, App, Auth, Favorites, Settings, User, DatePicker ) {
+	
 	/**
 	 * User authentication theme module example that implements a "Simple login/logout form" 
 	 * displayed under the topbar of app's theme.
@@ -10,9 +10,7 @@ define( [ 'jquery', 'core/theme-app', 'core/modules/authentication' ], function(
 	 * 
 	 * Login/logout are handled with the WP-AppKit Authentication API.
 	 */
-
-	 
-	console.log( 'SIMPLE LOGIN' );	 
+	
 	
 	App.setParam( 'refresh-at-app-launch', false );
 //	App.setParam( 'go-to-default-route-after-refresh', false );
@@ -24,9 +22,11 @@ define( [ 'jquery', 'core/theme-app', 'core/modules/authentication' ], function(
 		var user = Auth.getCurrentUser();
 		if ( user ) {
 			
+			$('#waiting').show();
 			launch_route = 'component-latest';
 			//fragment of the component (post list) you want to display if logged in.
 			//If this is a page, you can use TemplateTags.getPageLink()
+			getTerms( user );
 			
 		} else {
 			
@@ -37,89 +37,114 @@ define( [ 'jquery', 'core/theme-app', 'core/modules/authentication' ], function(
 		return launch_route;
 	} );
 	
-	var chosenCategories = ['chemical','energy'];
-	
 	App.filter( 'web-service-params', function ( web_service_params, web_service_name ){
-		// web_service_name can be 'synchronization', 'get-more-of-component' or 'get-post-comments'
+		var date_range = [start_date,end_date];
+		web_service_params.date_range = date_range;
+		web_service_params.date_range = date_range;
 		web_service_params.auth_data = Auth.getActionAuthData( web_service_name );
-		web_service_params.chosen_categories = chosenCategories;//LocalStorage.get( 'categories', 'chosen' );
+		web_service_params.chosen_categories = chosenCategories;
+		web_service_params.user_cats = availableCategories;
 		return web_service_params;
 	} );
-
-
-	/**
-	 * Define HTML for our login form wrapper, insert it into DOM just after the feedback <div>,
-	 * then memorize a jQuery reference to it.
-	 */
-	$( '<div class="clearfix"><div class="clearfix pull-right" id="user-info"></div></div>' ).insertAfter( '#feedback' );
-	var $user_info = $('#user-info');
-
-	/**
-	 * Function that handles the login/logout form display depending on 
-	 * whether the user is logged in or not.
-	 */
-	var update_login_info = function() {
-		
-		var current_user = Auth.getCurrentUser();
-		
-		if ( current_user ) { 
-			//User logged in : display user info and logout button :
-			$user_info.html( 'Logged in as <a href="#user-page">'+ current_user.login +'</a> <button type="button" class="btn btn-danger" id="logout">Log out</button>');
-		} else { 
-			//User not logged in : display the login button :
-			$user_info.html( 'No user connected <button type="button" class="btn btn-info" id="login">Log in</button>' );
-		}
-		
-	};
-
-	/**
-	 * Update the login/logout display as soon as the theme is loaded,
-	 * so that it displays correctly according user connection state
-	 */
-	update_login_info();
-
-	/**
-	 * Update the login/logout display at user login and logout
-	 */
-	App.on( 'info', function( info ) {
-		switch( info.event ) {
-			case 'auth:user-login':
-			case 'auth:user-logout':
-				update_login_info();
-				break;
-		}
-	} );
 	
-	/**
-	 * Make the login form appear when clicking the "Log in" button
-	 */
-	$( $user_info ).on( 'click', '#login', function( e ) {
-		e.preventDefault();
-		$user_info.html( 
-			'<input id="userlogin" placeholder="Login" type="text" >' +
-			'<input id="userpass" placeholder="Password" type="password" >' +
-			'<button type="button" class="btn btn-info" id="go-login">Log in</button>'
-		);
-	} );
+/*
+	function saveUserPassword(password){
+		var credentials_group = 'credentials';
+		var user_data_key = 'user_password';
+		PersistentStorage.set (credentials_group, user_data_key, password);
+	}
 	
-	/**
-	 * Log the user in when submiting the login form
-	 */
-	$( $user_info ).on( 'click', '#go-login', function( e ) {
-		e.preventDefault();
+	function saveUserData(user){
+		var credentials_group = 'credentials';
+		var user_data_key = 'user_data';
+		PersistentStorage.set (credentials_group, user_data_key, user);
+	}
+	
+	function getSavedUserData(){
+		var credentials_group = 'credentials';
+		var user_data_key = 'user_data';
+		var user_data = PersistentStorage.get (credentials_group, user_data_key);
+		return user_data;
+	}
+*/
+	
+	function getTerms(data){
+		if(data.user){
+			var user_name = data.user;
+		}
+		if(data.login){
+			var user_name = data.login;
+		}
+		$.ajax({
+			url:base_dir+'/user_terms.php',
+			type:'GET',
+			dataType:'json',
+			data:{name:user_name},
+			success: function(data){
+				$('#app-menu a[href^="#component"]').remove();
+				availableCategories = [];
+				categoryNames = [];
+				$.each(data,function(k,v){
+					//console.log('v',v);
+					var name = v.name;
+					var slug = v.slug;
+					//if( $.inArray(slug,availableCategories)<0 ){
+						availableCategories.push(slug);
+						var categoryName = [slug,name];
+						categoryNames.push(categoryName);
+					//}
+				});
+				User.setUserName(user_name);
+				//
+				// INITIALLY SET CHOSEN CATEGORIES TO ALL CATEGORIES
+				//
+				chosenCategories = availableCategories;
+				if( Favorites.getFavorites() ){
+					chosenCategories = Favorites.getFavorites();
+					App.refresh(
+						function() { //Success callback (cb_ok)
+							App.refreshComponent( {
+					            success: function () {
+					                App.reloadCurrentScreen();
+					            }
+							});
+			            }, 
+			            function( error ) { //Error callback (cb_error)
+			                  //Hide loading spinner
+			                  //Display error message based on error.message
+			            }
+					);
+				} else {
+					Settings.openSettings();
+				}
+				Favorites.populateFavorites();
+								
+			}
+		});
+	}
+
+	var login = {};
+	
+	login.logIn = function(login,pass){
+		//console.log('logging in with: '+login+', '+pass);
+		$('#waiting').show();
 		Auth.logUserIn( 
-			$('#userlogin').val(), 
-			$('#userpass').val()
+			login, 
+			pass,
+			function(data){
+				//saveUserData(data);
+				//saveUserPassword(pass);
+				getTerms( data );
+			}
 		);
-	} );
+	}
 	
-	/**
-	 * Log the user out when clicking the "Log out" button
-	 */
-	$( $user_info ).on( 'click', '#logout', function( e ) {
-		e.preventDefault();
+	login.logout = function(){
 		Auth.logUserOut();
-	} );
+		App.navigate( 'login-page' );
+	}
+	
+	return login;
 
 } );
 
