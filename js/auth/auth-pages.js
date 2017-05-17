@@ -63,19 +63,6 @@ define( [ 'jquery', 'core/theme-app', 'core/modules/authentication' ], function(
 	 */
 	App.addCustomRoute( 'login-page', 'login-page' ); 
 	
-	/**
-	 * Login page form submit : log the user in when submitting the login form,
-	 * calling Auth.logUserIn(login, pass) with login and password entered by
-	 * the user in the login form.
-	 */
-	$( '#app-content-wrapper' ).on( 'click', '#login-page button', function( e ) {
-		e.preventDefault();
-		Auth.logUserIn( 
-			$('#user-login').val(), 
-			$('#user-pass').val()
-		);
-	} );
-	
 	
 	/**************************************************************************
 	 * Customize authentication feedback messages and errors
