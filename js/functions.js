@@ -16,6 +16,8 @@ define( [ 'jquery', 'core/theme-app', 'core/theme-tpl-tags', 'core/modules/persi
 
 	categoryNames = [];
 	
+	gettingMore = false;
+	
 	// HOLDS POST DATA FOR SINGLE-PAGE SECTIONS
 	// SET WHEN retrievePosts IS CALLED
 	section_data = [];
@@ -43,22 +45,25 @@ define( [ 'jquery', 'core/theme-app', 'core/theme-tpl-tags', 'core/modules/persi
 	} );
 	
 	$(window).scroll(function() {
-	   if($(window).scrollTop() + $(window).height() > $(document).height() - 500) {
+	   if(!gettingMore && $(window).scrollTop() + $(window).height() > $(document).height() - 500) {
 		   getMoreItems();
 	   }
 	});
 	
 	function getMoreItems(){
+		gettingMore = true;
 		App.getMoreComponentItems( 
 			function() {
 				//If something is needed once items are retrieved, do it here.
 				//Note : if the "get more" link is included in the archive.html template (which is recommended),
 				//it will be automatically refreshed.
 				console.log( 'SUCCESS' );
+				gettingMore = false;
 				//$this.removeAttr( 'disabled' );
 			},
 			function( error, get_more_link_data ) {
 				console.log( 'ERROR', error );
+				gettingMore = false;
 				//$this.removeAttr( 'disabled' ).text( text_memory );
 			}
 		);
